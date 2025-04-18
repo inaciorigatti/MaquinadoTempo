@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "maquinaTempo.h"
 
-// Criando as Structs para as listas
 typedef struct eras {
   char nome[50];
   int limite;
@@ -32,25 +32,15 @@ typedef struct esperaEncadeado {
     Espera *inicio;
 } EsperaEncadeado;
 
-typedef struct embarcadosDuploEncadeado { 
+typedef struct embarcadosDuploEncadeado {
     Embarcado *inicio;
     Embarcado *fim;
 } EmbarcadosDuploEncadeado;
 
-// Função que copia a string 'origem' para a string 'destino'
-void copiarChar(char destino[], const char origem[]) {
-    int i = 0;
-
-    // Copia até encontrar o '\0' na string de origem
-    while ((destino[i] = origem[i]) != '\0') {
-        i++;
-    }
-}
-
-// Criando os Nós
 Eras *criarNoEras(char nome[], int limite) {
     Eras *eras = (Eras*) calloc(1, sizeof(Eras));
-    copiarChar(eras->nome, nome);
+    
+    strcpy(eras->nome, nome);
     eras->limite = limite;
     eras->embarcados = 0; 
     eras->proximo = NULL;
@@ -60,8 +50,9 @@ Eras *criarNoEras(char nome[], int limite) {
 
 Espera *criarNoEspera(char nome[], char destino[]) {
     Espera *espera = (Espera *) calloc(1, sizeof(Espera));
-    copiarChar(espera->nome, nome);
-    copiarChar(espera->destino, destino);
+    
+    strcpy(espera->nome, nome);
+    strcpy(espera->destino, destino);
     espera->proximo = NULL;
 
     return espera;
@@ -69,8 +60,9 @@ Espera *criarNoEspera(char nome[], char destino[]) {
 
 Embarcado *criarNoEmbarcado(char nome[], char destino[]) {
     Embarcado *embarcado = (Embarcado *) calloc(1, sizeof(Embarcado));
-    copiarChar(embarcado->nome, nome);
-    copiarChar(embarcado->destino, destino);
+    
+    strcpy(embarcado->nome, nome);
+    strcpy(embarcado->destino, destino);
     embarcado->anterior = NULL;
     embarcado->proximo = NULL;
 
@@ -100,7 +92,6 @@ EmbarcadosDuploEncadeado *criarListaDuplaEmbarcados() {
     return lista;
 }
 
-
 void adicionarNoInicioEras(ErasEncadeado *lista, char nome[], int limite) {
     Eras *no = criarNoEras(nome, limite);
     no->proximo = lista->inicio;
@@ -111,7 +102,7 @@ void adicionarNoFinalEspera(EsperaEncadeado *lista, char nome[], char destino[])
     Espera *novoNo = criarNoEspera(nome, destino);
 
     if (lista->inicio == NULL) {
-
+        
         lista->inicio = novoNo;
     } else {
 
@@ -121,8 +112,9 @@ void adicionarNoFinalEspera(EsperaEncadeado *lista, char nome[], char destino[])
         }
         noAxu->proximo = novoNo;
     }
-    system("clear"); // se Windows -> system("clear");
-    printf("[LOG] Passageiro '%s' adicionado na lista de espera com destino a '%s'.\n", nome, destino);
+
+    system("clear");
+    printf("[LOG] Passageiro '%s' embarcado para '%s'.\n", nome, destino);
 }
 
 void imprimirEras(const ErasEncadeado *lista) {
@@ -158,26 +150,12 @@ void imprimirEmbarcados(const EmbarcadosDuploEncadeado *lista) {
     }
 
     if (i == 0) {
+        system("clear");
         printf("[LOG] Nenhum passageiro embarcado.\n");
     } else {
         printf("NULL\n");
     }
 }
-
-int charIguais(char char1[], char char2[]) {
-    int i = 0;
-
-    while (char1[i] != '\0' && char2[i] != '\0') {
-        if (char1[i] != char2[i]) {
-            return 0; // São diferentes
-        }
-        i++;
-    }
-
-    // Se ambos terminaram ao mesmo tempo, são iguais
-    return (char1[i] == '\0' && char2[i] == '\0');
-}
-
 
 
 void adicionarPrimeiroAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncadeado *listaEras) {
@@ -192,7 +170,7 @@ void adicionarPrimeiroAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuploEn
 
     // Busca a era de destino na lista de eras
     Eras *destinoEra = listaEras->inicio;
-    while (destinoEra != NULL && charIguais(destinoEra->nome, passageiro->destino) != 0) {
+    while (destinoEra != NULL && strcmp(destinoEra->nome, passageiro->destino) != 0) {
         destinoEra = destinoEra->proximo;
     }
 
@@ -219,8 +197,8 @@ void adicionarPrimeiroAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuploEn
         listaEmbarcados->fim = novoEmbarcado;
     } else {
         // Insere no fim
-        novoEmbarcado->anterior = listaEmbarcados->fim;
-        listaEmbarcados->fim->proximo = novoEmbarcado;
+        novoEmbarcado->anterior = listaEmbarcados->fim; //anterior aponta para o fim da lista
+        listaEmbarcados->fim->proximo = novoEmbarcado; 
         listaEmbarcados->fim = novoEmbarcado;
     }
 
@@ -254,7 +232,7 @@ void adicionarUltimoAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuploEnca
 
     // Encontrar a era de destino
     Eras *destino = listaEras->inicio;
-    while (destino != NULL && charIguais(destino->nome, ultimo->destino) != 0) {
+    while (destino != NULL && strcmp(destino->nome, ultimo->destino) != 0) {
         destino = destino->proximo;
     }
 
@@ -332,7 +310,7 @@ void adicionarEspecificoAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuplo
 
     // Busca a era de destino
     Eras *destino = listaEras->inicio;
-    while (destino != NULL && charIguais(destino->nome, atual->destino) != 0) {
+    while (destino != NULL && strcmp(destino->nome, atual->destino) != 0) {
         destino = destino->proximo;
     }
 
@@ -372,7 +350,7 @@ void adicionarEspecificoAoEmbarque(EsperaEncadeado *listaEspera, EmbarcadosDuplo
         anterior->proximo = atual->proximo;
     }
 
-    
+
     system("clear");
     printf("[LOG] Passageiro '%s' embarcado para '%s'.\n", novoEmbarcado->nome, novoEmbarcado->destino);
 }
@@ -389,7 +367,7 @@ void desembarcarPrimeiro(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncadead
 
     // Busca a era correspondente ao destino
     Eras *destinoEra = listaEras->inicio;
-    while (destinoEra != NULL && charIguais(destinoEra->nome, desembarcar->destino) != 0) {
+    while (destinoEra != NULL && strcmp(destinoEra->nome, desembarcar->destino) != 0) {
         destinoEra = destinoEra->proximo;
     }
 
@@ -428,7 +406,7 @@ void desembarcarUltimo(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncadeado 
     // Procurar a era correspondente ao destino para decrementar embarcados
     Eras *era = listaEras->inicio;
     while (era != NULL) {
-        if (charIguais(era->nome, ultimo->destino) == 0) {
+        if (strcmp(era->nome, ultimo->destino) == 0) {
             if (era->embarcados > 0) {
                 era->embarcados--;
             }
@@ -446,6 +424,7 @@ void desembarcarUltimo(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncadeado 
         listaEmbarcados->inicio = NULL;
         listaEmbarcados->fim = NULL;
     }
+
     system("clear");
     printf("[LOG] Passageiro '%s' desembarcou da era '%s' (Ultimo da Lista).\n", ultimo->nome, ultimo->destino);
 
@@ -459,8 +438,8 @@ void desembarcarPorPosicao(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncade
     }
 
     Embarcado *atual = listaEmbarcados->inicio;
+    
     int contador = 1;
-
     // Percorre até o nó da posição informada
     while (atual != NULL && contador < posicao) {
         atual = atual->proximo;
@@ -476,7 +455,7 @@ void desembarcarPorPosicao(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncade
     // Atualiza a era de destino
     Eras *era = listaEras->inicio;
     while (era != NULL) {
-        if (charIguais(era->nome, atual->destino) == 0) {
+        if (strcmp(era->nome, atual->destino) == 0) {
             if (era->embarcados > 0) {
                 era->embarcados--;
             }
@@ -499,6 +478,7 @@ void desembarcarPorPosicao(EmbarcadosDuploEncadeado *listaEmbarcados, ErasEncade
         // Era o último da lista
         listaEmbarcados->fim = atual->anterior;
     }
+    
     system("clear");
     printf("[LOG] Passageiro '%s'foi desembarcado em '%s'.\n", atual->nome, atual->destino);
 }
